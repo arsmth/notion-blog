@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/Link'
 
 const Home = () => (
 	<div>
@@ -9,7 +10,7 @@ const Home = () => (
 		</Head>
 		<main>
 			<h1>
-				Welcome to <a href="https://nextjs.org">Next.js!</a>
+				Checkout the <Link href="/blog">Blog</Link>.
 			</h1>
 		</main>
 	</div>
