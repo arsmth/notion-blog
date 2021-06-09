@@ -1,14 +1,14 @@
 import { NotionRenderer, BlockMapType } from 'react-notion'
 
-import { getAllPosts, NOTION_TOKEN, Post, URL_NOTION_PAGE } from '.'
-import { dateFormatter } from 'library/utils'
+import { getBlogTable, getPageBlocks, PostType } from 'core/blog'
+import { dateFormatter } from 'core/utils'
 
-interface Props {
-	post: Post
+interface PostProps {
+	post: PostType
 	blocks: BlockMapType
 }
 
-const BlogPost = ({ post, blocks }: Props) => {
+const Post = ({ post, blocks }: PostProps) => {
 	const postDate = new Date(post.date)
 
 	return (
@@ -40,11 +40,14 @@ const BlogPost = ({ post, blocks }: Props) => {
 	)
 }
 
-export async function getStaticPaths() {
-	const posts = await getAllPosts()
+export const getStaticPaths = async () => {
+	const table = await getBlogTable()
+
 	return {
-		paths: posts.map((post) => `/blog/${post.slug}`),
-		fallback: true,
+		paths: table
+			.filter((row) => process.env.NODE_ENV === 'development' || row.published)
+			.map((row) => `/blog/${row.slug}`),
+		fallback: false,
 	}
 }
 
@@ -53,22 +56,16 @@ export async function getStaticProps({
 }: {
 	params: { slug: string }
 }) {
-	const posts = await getAllPosts()
-
+	const posts = await getBlogTable()
 	const post = posts.find((t) => t.slug === slug)
-
-	const blocks = await fetch(`${URL_NOTION_PAGE}/${post!.id}`, {
-		headers: {
-			Authorization: `Bearer ${NOTION_TOKEN}`,
-		},
-	}).then((res) => res.json())
+	const blocks = await getPageBlocks(post!.id)
 
 	return {
 		props: {
-			blocks,
 			post,
+			blocks,
 		},
 	}
 }
 
-export default BlogPost
+export default Post
