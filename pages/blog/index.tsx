@@ -1,6 +1,4 @@
-import Link from 'next/link'
-
-import { formatSlug } from 'utils/formatSlug'
+import Link from 'next/Link'
 
 export const URL_NOTION_PAGE = `https://notion-api.splitbee.io/v1/page`
 export const URL_NOTION_TABLE = `https://notion-api.splitbee.io/v1/table`
@@ -30,18 +28,14 @@ const Blog = ({ posts }: { posts: Post[] }) => (
 	<div>
 		<h1>Blog</h1>
 		{posts.map((post) => (
-			<Link
-				key={post.id}
-				href={formatSlug('[slug]')}
-				as={formatSlug(post.slug)}
-			>
-				<div>{post.title}</div>
+			<Link key={post.id} href="/blog/[slug]" as={`/blog/${post.slug}`}>
+				<a>{post.title}</a>
 			</Link>
 		))}
 	</div>
 )
 
-export const getAllPosts = async () => {
+export const getAllPosts = async (): Promise<Post[]> => {
 	const url = `${URL_NOTION_TABLE}/${NOTION_BLOG_ID}`
 	return await fetch(url, {
 		headers: {

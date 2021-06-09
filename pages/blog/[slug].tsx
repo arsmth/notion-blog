@@ -1,11 +1,15 @@
-import { NotionRenderer } from 'react-notion'
+import { NotionRenderer, BlockMapType } from 'react-notion'
 
 import { getAllPosts, NOTION_TOKEN, Post, URL_NOTION_PAGE } from '.'
-import { formatSlug } from 'utils/formatSlug'
 
-const Post = ({ post, blocks }) => {
+interface Props {
+	post: Post
+	blocks: BlockMapType
+}
+
+const BlogPost = ({ post, blocks }: Props) => {
 	return (
-		<div style={{ maxWidth: 768 }}>
+		<div>
 			<h1>{post.title}</h1>
 			<NotionRenderer blockMap={blocks} />
 		</div>
@@ -15,7 +19,7 @@ const Post = ({ post, blocks }) => {
 export async function getStaticPaths() {
 	const posts = await getAllPosts()
 	return {
-		paths: posts.map((row: { slug: string }) => formatSlug(row.slug)),
+		paths: posts.map((post) => `/blog/${post.slug}`),
 		fallback: true,
 	}
 }
@@ -29,7 +33,7 @@ export async function getStaticProps({
 
 	const post = posts.find((t) => t.slug === slug)
 
-	const blocks = await fetch(`${URL_NOTION_PAGE}/${post.id}`, {
+	const blocks = await fetch(`${URL_NOTION_PAGE}/${post!.id}`, {
 		headers: {
 			Authorization: `Bearer ${NOTION_TOKEN}`,
 		},
@@ -43,4 +47,4 @@ export async function getStaticProps({
 	}
 }
 
-export default Post
+export default BlogPost
